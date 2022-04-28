@@ -1,0 +1,16 @@
+FROM 192.168.1.110:30002/public/jdk:11-cn-oracle as base
+
+FROM 192.168.1.110:30002/public/maven:3-jdk-11 AS build
+WORKDIR /src
+COPY .m2/settings.xml /root/.m2/
+COPY . .
+RUN mvn package
+
+FROM build AS publish
+RUN mkdir -p /app/publish
+RUN cp target/*.jar /app/publish/app.jar
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+CMD java ${JAVA_OPTS}  -jar ./app.jar ${APP_OPTS}
