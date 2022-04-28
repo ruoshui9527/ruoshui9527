@@ -1,0 +1,10 @@
+#first execute npm-node-dockerfile
+
+FROM 192.168.1.110:30002/library/node-package AS web-publish
+WORKDIR /src
+COPY . .
+RUN rm -f *.lock && ls && cat ~/.npmrc && npm run build && ls dist/
+
+FROM 192.168.1.110:30002/public/nginx:alpine AS final
+COPY --from=web-publish /src/dist/ /usr/share/nginx/html/
+RUN ls /usr/share/nginx/html
