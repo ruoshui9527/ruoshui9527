@@ -1,0 +1,27 @@
+---
+kind: pipeline
+type: kubernetes
+name: default
+
+steps:
+  - name: build-image
+    image: plugins/docker
+    settings:
+      username: 
+      password: 
+      insecure: true
+      repo: 192.168.1.110:30002/library/web
+      registry: 192.168.1.110:30002
+      auto_tag: true
+      dockerfile: Drone.Dockerfile
+
+  - name: re-deploy
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        - 192.168.1.110
+      username: root
+      password: 123456
+      port: 22
+      script:
+        - kubectl -n test rollout restart deploy/web #k8s pull policy settings always
