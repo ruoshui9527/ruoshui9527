@@ -1,0 +1,9 @@
+FROM 192.168.1.110:30002/public/node:14 as base
+RUN	 sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && \
+     apk add --no-cache curl
+
+FROM base as build
+WORKDIR /src
+COPY package.json .
+COPY .npmrc /root/
+RUN	ls && cat ~/.npmrc && npm install
