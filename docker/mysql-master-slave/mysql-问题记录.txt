@@ -1,0 +1,2 @@
+程序连接数据库时，配置serverTimezone=UTC jdbc连接，insert 数据库后，
+  时间会减少一天，更改为 serverTimezone=Asia/Shanghai正常。
