@@ -1,0 +1,22 @@
+pg_hba.conf
+host    replication     all             192.168.1.100/32                  md5
+
+
+同步数据
+docker ps |grep postgres
+docker exec -it container_id /bin/bash
+                                           
+pg_basebackup -h 192.168.1.110 -F p -P -D $PGDATA/110-backup -p5432 -U postgres -R
+
+cd /var/lib/postgresql/data/pgdata/ && rm -rf *
+
+修改同步
+cat <<EOF>> standby.signal 
+tandby_mode = 'on'
+EOF
+
+docker-compose restart postgres
+
+查看是否同步
+select usename,application_name,client_addr,state from pg_stat_replication;
+select application_name, client_addr, sync_state from pg_stat_replication;

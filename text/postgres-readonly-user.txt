@@ -1,0 +1,10 @@
+create user test_name with password '123456';
+alter user test_name set default_transaction_read_only = on;
+grant connect  on database "test" to  test_name;
+
+#change test cmd execute
+
+grant usage on schema public to test_name;
+grant select on all sequences in schema public to test_name;
+grant select on all tables in schema public to test_name;
+alter default privileges in schema public grant select on tables to test_name;
