@@ -1,0 +1,28 @@
+kind: pipeline
+type: kubernetes
+name: hospital
+steps:
+  - name: maven
+    image: local.harbor/public/maven:3-jdk-11
+    commands:
+      - mkdir /root/.m2/
+      - cp .m2/settings.xml /root/.m2/  #使用本地nexus仓库拉取依赖
+      - mvn package #打包的结果放在磁盘中，后续直接拷贝jar即可，drone启动时需配置DRONE_USER_CREATE，再在界面的项目配置中启用Trusted。
+  - name: build-image-wechat-mp
+    image: local.harbor/drone/plugins/docker
+    privileged: true
+    settings:
+      insecure: true
+      repo: 192.168.1.216:30002/librarysvc-mp
+      registry: 192.168.1.216:30002
+      dockerfile: wechat-mp/drone.Dockerfile
+  - name: re-deploy
+    image: local.harbor/drone/appleboy/drone-ssh
+    settings:
+      host:
+        - 192.168.1.216
+      username: root
+      password: 123456
+      port: 22
+      script:
+        - kubectl -n web rollout restart deploy/forum
