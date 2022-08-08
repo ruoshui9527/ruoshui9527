@@ -1,0 +1,26 @@
+FROM 192.168.1.10:30002/public/aspnet:5.0 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM 192.168.1.10:30002/public/dotnetsdk:5.0 AS api-build
+WORKDIR /src
+COPY ["Api.csproj", "Api/"]
+COPY ["Storage.csproj", "Storage/"]
+RUN dotnet restore "Api.csproj" -s "http://192.168.1.10:30026/repository/nuget.org-proxy/index.json"
+COPY . .
+WORKDIR "/src/Api"
+RUN dotnet build "Api.csproj" -c Release -o /app/build
+
+FROM api-build AS api-publish
+RUN dotnet publish "Api.csproj" -c Release -o /app/publish
+
+FROM 192.168.1.10:30002/library/node-package AS web-publish
+WORKDIR /src
+COPY Frontend/WorkStation .
+RUN rm -f *.lock && ls && cat ~/.npmrc && npm run build:online && ls dist/
+
+FROM base AS final
+WORKDIR /app
+COPY --from=api-publish /app/publish .
+COPY --from=web-publish /src/dist ./wwwroot
+ENTRYPOINT ["dotnet", "Api.dll"]
