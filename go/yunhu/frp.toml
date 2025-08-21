@@ -1,0 +1,11 @@
+serverAddr = "127.0.0.1"
+serverPort = 7000
+auth.method = "token"
+auth.token = "yunhu"
+
+[[proxies]]
+name = "chatgpt-ai"
+type = "tcp"
+localIP = "192.168.1.10"
+localPort = 30000
+remotePort = 40001

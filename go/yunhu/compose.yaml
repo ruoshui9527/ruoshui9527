@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  yunhu:
+    image: yunhu:latest
+    restart: always
+    ports:
+      - 30000:8080
+    build:
+      context: .
+      dockerfile: Dockerfile
+  frp:
+    image: snowdreamtech/frpc
+    restart: always
+    volumes:
+      - ./frpc.ini:/etc/frp/frpc.ini
+  redis:
+    image: redis:latest
+    restart: always
